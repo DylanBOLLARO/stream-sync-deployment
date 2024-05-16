@@ -19,9 +19,6 @@ services:
 
         env_file:
             - .env
-        volumes:
-            - ./stream-sync-frontend/src:/app/src
-            - ./stream-sync-frontend/public:/app/public
         restart: always
         ports:
             - 3000:3000
@@ -45,6 +42,8 @@ services:
         networks:
             - stream-sync
             - stream-sync-db
+        volumes:
+            - ./stream-sync-backend/images:/usr/src/app/images
     stream-sync-database:
         container_name: stream-sync-database
         command:
