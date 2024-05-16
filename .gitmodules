@@ -1,0 +1,9 @@
+[submodule "stream-sync-frontend"]
+	path = stream-sync-frontend
+	url = https://github.com/DylanBOLLARO/stream-sync-frontend.git
+[submodule "stream-sync-backend"]
+	path = stream-sync-backend
+	url = https://github.com/DylanBOLLARO/stream-sync-backend.git
+[submodule "stream-sync-scrapy"]
+	path = stream-sync-scrapy
+	url = https://github.com/DylanBOLLARO/stream-sync-scrapy.git

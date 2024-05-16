@@ -1,0 +1,112 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker compose reference guide at
+# https://docs.docker.com/compose/compose-file/
+
+# Here the instructions define your application as a service called "app".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+    stream-sync-frontend:
+        container_name: stream-sync-frontend
+        build:
+            context: ./stream-sync-frontend
+            dockerfile: dev.Dockerfile
+
+        environment:
+            NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
+
+        env_file:
+            - .env
+        volumes:
+            - ./stream-sync-frontend/src:/app/src
+            - ./stream-sync-frontend/public:/app/public
+        restart: always
+        ports:
+            - 3000:3000
+        networks:
+            - stream-sync
+        depends_on:
+            - stream-sync-backend
+    stream-sync-backend:
+        container_name: stream-sync-backend
+        build:
+            context: ./stream-sync-backend
+            dockerfile: dev.Dockerfile
+        environment:
+            NODE_ENV: production
+            DATABASE_URL: ${DATABASE_URL}
+        ports:
+            - 5000:5000
+        depends_on:
+            stream-sync-database:
+                condition: service_healthy
+        networks:
+            - stream-sync
+            - stream-sync-db
+    stream-sync-database:
+        container_name: stream-sync-database
+        command:
+            [
+                "postgres",
+                "-c",
+                "log_statement=all",
+                "-c",
+                "log_destination=stderr"
+            ]
+        image: postgres:latest
+        restart: always
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        ports:
+            - 5432:5432
+        healthcheck:
+            test: "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        networks:
+            - stream-sync-db
+    stream-sync-pgadmin:
+        container_name: stream-sync-pgadmin
+        image: dpage/pgadmin4:latest
+        restart: unless-stopped
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+            - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+            - PGADMIN_LISTEN_PORT=5050
+        ports:
+            - 5050:5050
+        networks:
+            - stream-sync-db
+        depends_on:
+            stream-sync-database:
+                condition: service_healthy
+    stream-sync-nginx:
+        container_name: stream-sync-nginx
+        image: nginx:stable-alpine
+        volumes:
+            - ./nginx:/etc/nginx/conf.d/
+        ports:
+            - "80:80"
+        restart: always
+        networks:
+            - stream-sync
+        depends_on:
+            - stream-sync-frontend
+
+networks:
+    stream-sync:
+        external: true
+        driver: bridge
+    stream-sync-db:
+        external: true
+        driver: bridge
+
+volumes:
+    pgdata:
