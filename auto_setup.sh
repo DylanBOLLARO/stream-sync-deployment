@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cp .env.template .env
+
 docker network create stream-sync
 docker network create stream-sync-db
 docker compose -f compose.dev.yml build 
