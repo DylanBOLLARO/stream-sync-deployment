@@ -1,5 +1,9 @@
 ## Development
 
+```bash
+git clone --recurse-submodules https://github.com/DylanBOLLARO/stream-sync-deployment
+```
+
 First, run the development server:
 
 ```bash
