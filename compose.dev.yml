@@ -13,12 +13,10 @@ services:
         build:
             context: ./stream-sync-frontend
             dockerfile: dev.Dockerfile
-
         environment:
+            NEXT_PUBLIC_BACKEND_BASE: ${NEXT_PUBLIC_BACKEND_BASE}
+            NEXT_PUBLIC_BACKEND_PREFIX: ${NEXT_PUBLIC_BACKEND_PREFIX}
             NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
-
-        env_file:
-            - .env
         restart: always
         ports:
             - 3000:3000
@@ -26,6 +24,7 @@ services:
             - stream-sync
         depends_on:
             - stream-sync-backend
+
     stream-sync-backend:
         container_name: stream-sync-backend
         build:
@@ -44,6 +43,7 @@ services:
             - stream-sync-db
         volumes:
             - ./stream-sync-backend/images:/usr/src/app/images
+            - ./stream-sync-backend/assets:/usr/src/app/assets
     stream-sync-database:
         container_name: stream-sync-database
         command:
@@ -70,7 +70,7 @@ services:
         volumes:
             - pgdata:/var/lib/postgresql/data
         networks:
-            - stream-sync-db
+            - stream-sync
     stream-sync-pgadmin:
         container_name: stream-sync-pgadmin
         image: dpage/pgadmin4:latest
