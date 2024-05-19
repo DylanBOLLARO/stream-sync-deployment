@@ -5,6 +5,7 @@ services:
             context: ./stream-sync-frontend
             dockerfile: dev.Dockerfile
         environment:
+            NEXT_PUBLIC_FRONTEND_PREFIX: ${NEXT_PUBLIC_FRONTEND_PREFIX}
             NEXT_PUBLIC_BACKEND_BASE: ${NEXT_PUBLIC_BACKEND_BASE}
             NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
         restart: always
