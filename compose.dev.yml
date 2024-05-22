@@ -81,14 +81,29 @@ services:
         container_name: stream-sync-nginx
         image: nginx:stable-alpine
         volumes:
-            - ./nginx:/etc/nginx/conf.d/
+            - ./nginx:/etc/nginx/conf.d/:ro
+            - ./certbot/www/:/var/www/certbot/:ro
+        environment:
+            - DRY_RUN
         ports:
-            - "80:80"
+            - 80:80
+            - 443:443
         restart: always
         networks:
             - stream-sync
         depends_on:
             - stream-sync-frontend
+        healthcheck:
+            test: [ "CMD", "nc", "-z", "nginx", "80" ]
+            interval: 30s
+            timeout: 30s
+            start_period: 30s
+            retries: 10
+    stream-sync-certbot:
+        image: certbot/certbot:latest
+        volumes:
+            - ./certbot/www/:/var/www/certbot/:rw
+            - ./certbot/conf/:/etc/letsencrypt/:rw
 
 networks:
     stream-sync:
