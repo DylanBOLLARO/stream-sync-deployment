@@ -5,8 +5,6 @@ services:
             context: ./stream-sync-frontend
             dockerfile: dev.Dockerfile
         environment:
-            NEXT_PUBLIC_FRONTEND_PREFIX: ${NEXT_PUBLIC_FRONTEND_PREFIX}
-            NEXT_PUBLIC_BACKEND_BASE: ${NEXT_PUBLIC_BACKEND_BASE}
             NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
         restart: always
         ports:
@@ -77,41 +75,11 @@ services:
         depends_on:
             stream-sync-database:
                 condition: service_healthy
-    stream-sync-nginx:
-        container_name: stream-sync-nginx
-        image: nginx:stable-alpine
-        volumes:
-            - ./nginx:/etc/nginx/conf.d/:ro
-            - ./certbot/www/:/var/www/certbot/:ro
-        environment:
-            - DRY_RUN
-        ports:
-            - 80:80
-            - 443:443
-        restart: always
-        networks:
-            - stream-sync
-        depends_on:
-            - stream-sync-frontend
-        healthcheck:
-            test: [ "CMD", "nc", "-z", "nginx", "80" ]
-            interval: 30s
-            timeout: 30s
-            start_period: 30s
-            retries: 10
-    stream-sync-certbot:
-        image: certbot/certbot:latest
-        volumes:
-            - ./certbot/www/:/var/www/certbot/:rw
-            - ./certbot/conf/:/etc/letsencrypt/:rw
 
 networks:
     stream-sync:
-        external: true
-        driver: bridge
     stream-sync-db:
-        external: true
-        driver: bridge
+
 
 volumes:
     pgdata:
