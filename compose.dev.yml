@@ -78,8 +78,11 @@ services:
 
 networks:
     stream-sync:
+        external: true
+        driver: bridge
     stream-sync-db:
-
+        external: true
+        driver: bridge
 
 volumes:
     pgdata:
